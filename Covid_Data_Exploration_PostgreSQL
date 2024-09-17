@@ -72,3 +72,14 @@ FROM coviddeaths AS d
 INNER JOIN covidvaccination AS v ON d.location = v.location AND d.date = v.date
 --where d.location ilike '%china%'
 and d.continent IS NOT NULL;
+
+-- Creating View to store data for later visualizations
+
+CREATE VIEW PercentPopulationVaccinated AS
+SELECT  d.continent, d.location, d.date, d.population, v.new_vaccinations,
+    SUM(COALESCE(v.new_vaccinations, 0)) OVER (PARTITION BY d.location ORDER BY d.date) AS rolling_people_vaccinated
+FROM coviddeaths AS d
+JOIN  covidvaccination AS v
+ON d.location = v.location
+    AND d.date = v.date
+WHERE d.continent IS NOT NULL;
